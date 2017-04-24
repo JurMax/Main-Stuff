@@ -5,38 +5,12 @@
  *      Author: jurriaanvandenberg
  */
 
-#ifdef _WIN32
-	#ifdef _WIN64
-		#define OS "Windows (64-bit)"
-	#else
-		#define OS "Windows (32-bit)"
-	#endif
-#elif __APPLE__
-	#include "TargetConditionals.h"
-	#if TARGET_IPHONE_SIMULATOR
-		#define OS "IOS (Simulated)"
-	#elif TARGET_OS_IPHONE
-		#define OS "IOS"
-	#elif TARGET_OS_MAC
-		#define OS "MacOS"
-	#else
-    	#define OS "Unknown Apple platform"
-	#endif
-#elif __ANDROID__
-	#define OS "Android"
-#elif __linux__
-	#define OS "Linux"
-#elif __unix__ // unix system not caught above
-	#define OS "Unkown Unix OS"
-#else
-	#define OS "Unkown OS"
-#endif
-
 #include <JOverture.hpp>
 
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 #include <SDL_mixer.h>
+#include <JPlatform.hpp>
 #include <JRenderer.hpp>
 #include <JAudio.hpp>
 #include <JResources.hpp>
@@ -47,8 +21,6 @@
 
 int initSDL();
 void updateFPS();
-
-std::string Overture_CurrentOS = OS;
 
 JWindow mainWindow;
 bool renderFocusloss = false;
@@ -65,8 +37,10 @@ void (*updateFunc)();
 int Overture_Init() {
 	int success = 0;
 
+	Platform_Init();
+
 	SDL_Log("== Starting Overture Engine ==");
-	SDL_Log("Running on [%s]", Overture_CurrentOS.c_str());
+	SDL_Log("Running on [%s]", Platform_GetOS().c_str());
 
 	if (!initSDL()) {
 		SDL_Log("ERROR: Failed to initialise SDL!\n");
@@ -245,7 +219,8 @@ bool Overture_SetOption( std::string option, int value ) {
 
 
 std::string Overture_GetOS() {
-	return Overture_CurrentOS;
+	//TODO
+	return Platform_GetOS();
 }
 
 
@@ -262,7 +237,7 @@ bool Overture_IsRunning() {
 bool Overture_IsMobile() {
 	std::string ios = "IOS";
 
-	if (Overture_CurrentOS == "Android" || Overture_CurrentOS.compare(0, ios.length(), ios) == 0) {
+	if (Platform_GetOS() == "Android" || Platform_GetOS().compare(0, ios.length(), ios) == 0) {
 		return true;
 	}
 	else {

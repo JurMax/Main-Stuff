@@ -9,21 +9,12 @@
 
 #include <iomanip>
 #include <SDL_ttf.h>
+#include <SDL_syswm.h>
 #include <JAudio.hpp>
 #include <JUI.hpp>
 #include <JProfiler.hpp>
 #include <JDebug.hpp>
-
-#include <SDL_syswm.h>
-
-#ifdef __APPLE__
-	#include <CoreFoundation.h>
-	#include <CFString.h>
-	#include <CFBase.h>
-	#include <CFAttributedString.h>
-	#include <objc/objc.h>
-	#include <objc/objc-runtime.h>
-#endif
+#include <JPlatform.hpp>
 
 #include "RedoxUI.hpp"
 
@@ -47,78 +38,15 @@ void redoxmain::init() {
 	UI_Initialize();
 }
 
-#ifdef __APPLE__
-extern "C" int NSRunAlertPanel(CFStringRef strTitle, CFStringRef strMsg, CFStringRef strButton1, CFStringRef strButton2, CFStringRef strButton3, ...);
-
-bool loadedWindow = false;
-id window;
-#endif
 
 
 void redoxmain::update() {
-
-#ifdef __APPLE__
 	if (Input::isKeyPressed(KEY_B)) {
-		if (!loadedWindow) {
-			id app = NULL;
-
-			id pool = (id) objc_getClass("NSAutoreleasePool");
-			if (!pool) {
-				SDL_Log("Unable to get NSAutoreleasePool!!");
-				return;
-			}
-			pool = objc_msgSend(pool, sel_registerName("alloc"));
-			if (!pool) {
-				SDL_Log("Unable to create NSAutoreleasePool!!");
-				return;
-			}
-			pool = objc_msgSend(pool, sel_registerName("init"));
-
-
-			//pasteboard = objc_msgSend((id) objc_getClass("NSPasteboard"), sel_registerName("pasteboardWithName:NSDragPboard"));
-
-			app = objc_msgSend((id) objc_getClass("NSApplication"), sel_registerName("sharedApplication"));
-			if (!app) {
-				SDL_Log("Unable to load app!!");
-			}
-
-			id windows = objc_msgSend(app, sel_registerName("windows"));
-			if (!windows) {
-				SDL_Log("Unable to load windows!!");
-			}
-
-			window = objc_msgSend(windows, sel_registerName("objectAtIndex:"), 0);
-			if (!window) {
-				SDL_Log("Unable to load window!!");
-			} else {
-				loadedWindow = true;
-			}
-
-		    objc_msgSend(pool, sel_registerName("release"));
-		}
-
-
-	    //objc_msgSend(window, sel_registerName("close"));
-	    objc_msgSend(window, sel_registerName("toggleFullScreen:"), 0);
-	    //objc_msgSend(window, sel_registerName("performClose:"), 0);
-
-
-	    SDL_Log("BLA!");
-	    //NSRunAlertPanel(CFSTR("Testing"), CFSTR("This is a simple test to display NSAlertPanel."), CFSTR("OK"), CFSTR("WOW"), CFSTR("COOL!"));
+		Platform_LoadDragAndDrop();
 	}
-
-
 	if (Input::isKeyPressed(KEY_A)) {
-		id nsview = objc_msgSend(window, sel_registerName("contentView"));
-		if (!nsview) {
-			SDL_Log("Unable to load NSView!!");
-		} else {
-			objc_msgSend(nsview, sel_registerName("dragFile:fromRect:slideBack:event:"), CFSTR("/Users/jurriaanvandenberg/Desktop/C1akw25UUAARHH0.jpg"), NULL, FALSE, NULL);
-			loadedWindow = true;
-		}
+		Platform_Drag("/Users/jurriaanvandenberg/Desktop/C1akw25UUAARHH0.jpg");
 	}
-#endif
-
 
 	UI_Update();
 }
