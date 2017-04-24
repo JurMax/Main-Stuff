@@ -20,7 +20,7 @@ namespace profiler {
 	Profile *getProfile( std::string profile ) {
 		Profile *prfl = NULL;
 
-		for (int i = 0; i < profiles.size(); i++) {
+		for (unsigned int i = 0; i < profiles.size(); i++) {
 			if (!profile.compare(profiles.at(i).name)) {
 				prfl = &profiles.at(i);
 			}
@@ -80,15 +80,15 @@ namespace profiler {
 		SDL_Log("    #    Profile    Time (ms)        Calls");
 		SDL_Log("  ----------------------------------------");
 
-		for (int i = 0; i < profiles.size(); i++) {
+		for (unsigned int i = 0; i < profiles.size(); i++) {
 			//printData(&profiles.at(i));
 			Profile *profile = &profiles.at(i);
 			int total = 0;
-			for (int i = 0; i < profile->calls; i++) {
-				total += profile->stopTime.at(i) - profile->startTime.at(i);
+			for (unsigned int i2 = 0; i2 < profile->calls; i2++) {
+				total += profile->stopTime.at(i2) - profile->startTime.at(i2);
 			}
 			float average = ((float) total) / ((float) profile->calls);
-			SDL_Log("  %3s %10s %12s %12s", std::to_string(i).c_str(), profile->name.c_str(), std::to_string(average).c_str(), std::to_string(profile->calls).c_str());
+			SDL_Log("  %3s %10s %12s %12s", toString(i).c_str(), profile->name.c_str(), toString(average).c_str(), toString(profile->calls).c_str());
 		}
 
 		SDL_Log(" ");

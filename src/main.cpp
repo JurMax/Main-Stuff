@@ -9,9 +9,9 @@
 
 #include "redox/RedoxMain.hpp"
 #include "rhythmchess/RhythmChess.hpp"
+#undef main
 
-
-int main( int argc, char* argv[] ) {
+int main() {
 	bool redox = true;
 	if (redox) {
 		if (Overture_Init()) {
@@ -36,5 +36,4 @@ int main( int argc, char* argv[] ) {
 
 	return 0;
 }
-
 

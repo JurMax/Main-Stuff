@@ -112,14 +112,14 @@ void RCUpdate() {
 		stopAudio();
 	}
 
-	for (int i = 0; i < players.size(); i++) {
+	for (unsigned int i = 0; i < players.size(); i++) {
 		players.at(i).update();
 	}
 }
 
 
 void RCRender() {
-	Overture_GetWindow()->setTitle("SDL Window | FPS: " + std::to_string(Overture_GetFramerate()));
+	Overture_GetWindow()->setTitle("SDL Window | FPS: " + toString(Overture_GetFramerate()));
 
 
 	///// Render Background /////
@@ -176,7 +176,7 @@ void RCRender() {
 	}
 
 
-	for (int i = 0; i < players.size(); i++) {
+	for (unsigned int i = 0; i < players.size(); i++) {
 		players.at(i).render(offsetX, offsetY);
 	}
 

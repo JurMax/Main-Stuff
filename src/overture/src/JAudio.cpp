@@ -6,6 +6,8 @@
  */
 
 #include <JAudio.hpp>
+
+#include <cmath>
 #include <string>
 #include <stdio.h>
 #include <vector>
@@ -46,7 +48,7 @@ bool Audio_Init() {
 
 
 void Audio_Update() {
-	for (int i = 0; i < audioData.size(); i++) {
+	for (unsigned int i = 0; i < audioData.size(); i++) {
 		int i2 = audioData.size() - 1 - i;
 		AudioData *ad = &audioData.at(i2);
 
@@ -75,7 +77,7 @@ void playAudio( JAudio *audio, bool unique, int loop ) {
 		int play = true;
 
 		if (unique) {
-			for (int i = 0; i < audioData.size(); i++) {
+			for (unsigned int i = 0; i < audioData.size(); i++) {
 				if (audioData.at(i).audio == audio) {
 					play = false;
 				}
@@ -100,7 +102,7 @@ void playAudio( JAudio *audio, bool unique, int loop ) {
 
 
 void pauseAudio( JAudio *audio ) {
-	for (int i = 0; i < audioData.size(); i++) {
+	for (unsigned int i = 0; i < audioData.size(); i++) {
 		AudioData *ad = &audioData.at(i);
 
 		if (ad->audio == audio || audio == NULL) {
@@ -121,7 +123,7 @@ void pauseAudio( JAudio *audio ) {
 
 
 void stopAudio( JAudio *audio ) {
-	for (int i = 0; i < audioData.size(); i++) {
+	for (unsigned int i = 0; i < audioData.size(); i++) {
 		AudioData *ad = &audioData.at(i);
 		if (ad->audio == audio || audio == NULL) {
 			Mix_HaltChannel(ad->channel);
@@ -131,7 +133,7 @@ void stopAudio( JAudio *audio ) {
 
 
 bool audioOnBeat( JAudio *audio ) {
-	for (int i = 0; i < audioData.size(); i++) {
+	for (unsigned int i = 0; i < audioData.size(); i++) {
 		AudioData *ad = &audioData.at(i);
 		if (ad->audio->bmp != -1) {
 			if (ad->audio == audio || audio == NULL) {
@@ -150,7 +152,7 @@ bool audioOnBeat( JAudio *audio ) {
 
 
 bool audioOnOffbeat( JAudio *audio ) {
-	for (int i = 0; i < audioData.size(); i++) {
+	for (unsigned int i = 0; i < audioData.size(); i++) {
 		AudioData *ad = &audioData.at(i);
 		if (ad->audio->bmp != -1) {
 			if (ad->audio == audio || audio == NULL) {
@@ -170,7 +172,7 @@ bool audioOnOffbeat( JAudio *audio ) {
 
 float beatProgress( JAudio *audio, int *ticks ) {
 	float progress = -1.0f;
-	for (int i = 0; i < audioData.size(); i++) {
+	for (unsigned int i = 0; i < audioData.size(); i++) {
 		AudioData *ad = &audioData.at(i);
 		if (ad->audio->bmp != -1) {
 			if (ad->audio == audio || audio == NULL) {
@@ -195,7 +197,7 @@ float beatProgress( JAudio *audio, int *ticks ) {
 
 float offbeatProgress( JAudio *audio, int *ticks ) {
 	float progress = -1.0f;
-	for (int i = 0; i < audioData.size(); i++) {
+	for (unsigned int i = 0; i < audioData.size(); i++) {
 		AudioData *ad = &audioData.at(i);
 		if (ad->audio->bmp != -1) {
 			if (ad->audio == audio || audio == NULL) {
@@ -232,7 +234,7 @@ void getBeatRange( int *before, int *after ) {
 
 JAudio *getPlayingMusic() {
 	JAudio *jaudio;
-	for (int i = 0; i < audioData.size(); i++) {
+	for (unsigned int i = 0; i < audioData.size(); i++) {
 		AudioData *ad = &audioData.at(i);
 		if (ad->audio->bmp != -1) {
 			jaudio = ad->audio;

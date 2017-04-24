@@ -58,8 +58,6 @@ void renderTexture( JTexture *texture, float posX, float posY, float width, floa
 		SDL_SetTextureAlphaMod(texture->textureData, renderColor.a);
 
 		if (clippingMasks.size() > 0) {
-			for (int i = 0; i < clippingMasks.size(); i++) {
-			}
 
 			renderRect.x -= (int) roundf(clippingMasks.at(clippingMasks.size() - 1).posX);
 			renderRect.y -= (int) roundf(clippingMasks.at(clippingMasks.size() - 1).posY);

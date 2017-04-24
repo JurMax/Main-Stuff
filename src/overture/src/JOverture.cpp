@@ -69,7 +69,7 @@ int Overture_Init() {
 	SDL_Log("Running on [%s]", Overture_CurrentOS.c_str());
 
 	if (!initSDL()) {
-		SDL_Log("ERROR: Failed to initialize SDL!\n");
+		SDL_Log("ERROR: Failed to initialise SDL!\n");
 	}
 	else {
 		if (!Renderer_Init()) {
@@ -77,14 +77,14 @@ int Overture_Init() {
 		}
 		else {
 			if (!Audio_Init()) {
-				SDL_Log("ERROR: Failed to initialize audio!\n");
+				SDL_Log("ERROR: Failed to initialise audio!\n");
 			}
 			else {
 				if (!Resources_Init()) {
-					SDL_Log("ERROR: Failed to initialize resources!\n");
+					SDL_Log("ERROR: Failed to initialise resources!\n");
 				}
 				else {
-					SDL_Log("Initializing renderer, audio and resources succesvol");
+					SDL_Log("Initialising renderer, audio and resources successful");
 					Input::Input_LoadCursors();
 					success = 1;
 				}
@@ -104,28 +104,28 @@ int initSDL() {
 	SDL_SetHint(SDL_HINT_ACCELEROMETER_AS_JOYSTICK, "1");
 
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK) < 0) {
-		SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL failed to initialize! SDL Error: %s\n", SDL_GetError());
+		SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL failed to initialise! SDL Error: %s\n", SDL_GetError());
 	}
 	else {
 		SDL_StopTextInput();
 		SDL_GL_SetSwapInterval(1);
 
-		mainWindow.init();
+		mainWindow.init(640, 480);
 
 		if (!mainWindow.initialized) {
-			SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Window could not be initialized!");
+			SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Window could not be initialised!");
 		}
 		else {
             int imgFlags = IMG_INIT_PNG;
             if (!(IMG_Init(imgFlags) & imgFlags)) {
-            	SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
+            	SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_image could not initialise! SDL_image Error: %s\n", IMG_GetError());
             }
             else {
                 if (TTF_Init() == -1) {
-                	SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
+                	SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_ttf could not initialise! SDL_ttf Error: %s\n", TTF_GetError());
                 }
                 else {
-            		SDL_Log("SDL Initialization succesvol");
+            		SDL_Log("SDL Initialisation successful");
             		success = 1;
                 }
             }
@@ -146,7 +146,7 @@ void Overture_Close() {
     Mix_CloseAudio();
 	Mix_Quit();
 
-	SDL_Log("Application closed after %i ms", SDL_GetTicks());
+	SDL_Log("Application closed after %i milliseconds", SDL_GetTicks());
 	SDL_Quit();
 }
 

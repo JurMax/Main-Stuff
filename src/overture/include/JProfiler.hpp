@@ -15,7 +15,7 @@
 struct Profile {
 	std::string name;
 	bool started;
-	int calls;
+	unsigned int calls;
 	std::vector<int> startTime;
 	std::vector<int> stopTime;
 };

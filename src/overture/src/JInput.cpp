@@ -10,6 +10,7 @@
 
 #include <JOverture.hpp>
 #include <JRenderer.hpp>
+#include <string>
 
 
 void handleKeyInput( SDL_Event e );
@@ -361,7 +362,7 @@ void handleKeyInput( SDL_Event e ) {
     		switch (key) {
 				case KEY_BACKSPACE : {
 					if (inputText.length() > 0) {
-						inputText.pop_back();
+						inputText = inputText.substr(0, inputText.size() - 1);
 						if (keyModDown) {
 							inputText.clear();
 						}

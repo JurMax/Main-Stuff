@@ -13,6 +13,7 @@
 #include <sstream>
 #include <iostream>
 #include <SDL.h>
+#include <time.h>
 
 
 int Debug_Init();

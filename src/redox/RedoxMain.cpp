@@ -15,12 +15,15 @@
 #include <JDebug.hpp>
 
 #include <SDL_syswm.h>
-#include <CoreFoundation.h>
-#include <CFString.h>
-#include <CFBase.h>
-#include <CFAttributedString.h>
-#include <objc/objc.h>
-#include <objc/objc-runtime.h>
+
+#ifdef __APPLE__
+	#include <CoreFoundation.h>
+	#include <CFString.h>
+	#include <CFBase.h>
+	#include <CFAttributedString.h>
+	#include <objc/objc.h>
+	#include <objc/objc-runtime.h>
+#endif
 
 #include "RedoxUI.hpp"
 
@@ -44,13 +47,17 @@ void redoxmain::init() {
 	UI_Initialize();
 }
 
-
+#ifdef __APPLE__
 extern "C" int NSRunAlertPanel(CFStringRef strTitle, CFStringRef strMsg, CFStringRef strButton1, CFStringRef strButton2, CFStringRef strButton3, ...);
 
 bool loadedWindow = false;
 id window;
+#endif
+
 
 void redoxmain::update() {
+
+#ifdef __APPLE__
 	if (Input::isKeyPressed(KEY_B)) {
 		if (!loadedWindow) {
 			id app = NULL;
@@ -110,7 +117,7 @@ void redoxmain::update() {
 			loadedWindow = true;
 		}
 	}
-
+#endif
 
 
 	UI_Update();
@@ -120,7 +127,7 @@ void redoxmain::update() {
 SDL_Joystick* gGameController = NULL;
 
 void redoxmain::render() {
-	Overture_GetWindow()->setTitle("SDL Window | FPS: " + toStr(Overture_GetFramerate()));
+	Overture_GetWindow()->setTitle("SDL Window | FPS: " + toString(Overture_GetFramerate()));
 
 	static bool bl = true;
 	if (bl) {
@@ -235,12 +242,12 @@ void redoxmain::render() {
 	if (Input::isKeyPressed(KEY_T)) {
 		time_t t = time(0);
 	    tm now = *localtime(&t);
-	    std::string str = toStr(now.tm_year + 1900) + "-" + toStr(now.tm_mon + 1) + "-" + toStr(now.tm_mday) +
-	    		" " + toStr(now.tm_hour) + ":" + toStr(now.tm_min) + ":" + toStr(now.tm_sec);
+	    std::string str = toString(now.tm_year + 1900) + "-" + toString(now.tm_mon + 1) + "-" + toString(now.tm_mday) +
+	    		" " + toString(now.tm_hour) + ":" + toString(now.tm_min) + ":" + toString(now.tm_sec);
 	    //JLog(str);
 	    //func(6, "dcff", 3, 'a', 1.999, " ", 42.5);
 	    //JLog(3, 5, "asdf", 0.2, " ");
-	    toStr(3);
+	    toString(3);
 	}
 
 	setRenderColor( 255, 0, 0 );

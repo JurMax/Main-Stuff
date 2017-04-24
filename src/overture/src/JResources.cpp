@@ -8,6 +8,7 @@
 #include <JResources.hpp>
 
 #include <vector>
+#include <cstring>
 #include <SDL_image.h>
 #include <SDL_thread.h>
 #include <SDL_log.h>

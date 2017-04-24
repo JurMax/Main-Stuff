@@ -37,7 +37,7 @@ public:
 
 	bool initialized;
 	std::string title;
-	int windowID;
+	unsigned int windowID;
 	float width;
 	float height;
 
@@ -70,7 +70,7 @@ bool Overture_IsWindowFullscreen();
 
 // Android doesn't natively support std::to_string
 template <typename T>
-std::string toStr(T value) {
+std::string toString(T value) {
 	std::ostringstream os;
 	os << value;
 	return os.str();
