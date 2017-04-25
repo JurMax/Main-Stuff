@@ -14,7 +14,8 @@
 #include <SDL_log.h>
 
 #include <JInput.hpp>
-#include <JDebug.hpp>
+#include <JProfiler.hpp>
+#include <JSettings.hpp>
 
 
 class JWindow {
@@ -82,7 +83,9 @@ bool containsString( std::string str1, std::string str2 );
 /**
  * TODO-lijst
  *
- *  Framerate/updates
+ *  Framerate/updates (no vsync)
+ *  Font rendering
+ *
  *  Menus
  *  	Text
  *  		Load to texture
@@ -92,9 +95,7 @@ bool containsString( std::string str1, std::string str2 );
  *  	Keybindings
  *  	Save => http://lazyfoo.net/tutorials/SDL/33_file_reading_and_writing/index.php
  *  Audio
- *  	http://lazyfoo.net/tutorials/SDL/21_sound_effects_and_music/index.php
- *  	Play soundeffects
- *  		Time offset (play earlier or wait for some time)
+ *  	Time offset (play earlier or wait for some time)
  *
  *  https://www.youtube.com/watch?v=H0mI4owz994
  */

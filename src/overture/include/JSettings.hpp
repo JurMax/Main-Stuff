@@ -10,8 +10,15 @@
 
 #include <string>
 
+namespace Settings {
+	extern bool IsMultithreaded;
+	extern bool VSync;
+
+	void Init();
+}
+
 /*
-extern JSettingBool Overture_isMultithreaded;
+
 
 
 

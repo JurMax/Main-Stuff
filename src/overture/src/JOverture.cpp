@@ -14,8 +14,8 @@
 #include <JRenderer.hpp>
 #include <JAudio.hpp>
 #include <JResources.hpp>
-#include <JProfiler.hpp>
 #include <JBezier.hpp>
+#include <JDebug.hpp>
 #include <JUI.hpp>
 
 
@@ -37,15 +37,17 @@ void (*updateFunc)();
 int Overture_Init() {
 	int success = 0;
 
-	Platform_Init();
-
 	SDL_Log("== Starting Overture Engine ==");
+
+	Platform_Init();
 	SDL_Log("Running on [%s]", Platform_GetOS().c_str());
 
 	if (!initSDL()) {
 		SDL_Log("ERROR: Failed to initialise SDL!\n");
 	}
 	else {
+		Settings::Init();
+
 		if (!Renderer_Init()) {
 			SDL_Log("ERROR: Failed to initialise renderer!\n");
 		}
@@ -59,7 +61,7 @@ int Overture_Init() {
 				}
 				else {
 					SDL_Log("Initialising renderer, audio and resources successful");
-					Input::Input_LoadCursors();
+					Input::LoadCursors();
 					success = 1;
 				}
 			}
@@ -131,7 +133,7 @@ void Overture_Start() {
 	isRunning = true;
 	while(isRunning) {
 
-		if (THREADED_LOADING && Overture_IsLoadingTextures()) {
+		if (Settings::IsMultithreaded && Overture_IsLoadingTextures()) {
 			SDL_LockMutex(Overture_GetThreadMutex());
 		}
 
@@ -178,7 +180,7 @@ void Overture_Start() {
 			SDL_Delay(500);
 		}
 
-		if (THREADED_LOADING && Overture_IsLoadingTextures()) {
+		if (Settings::IsMultithreaded && Overture_IsLoadingTextures()) {
 			SDL_UnlockMutex(Overture_GetThreadMutex());
 		}
 	}
@@ -328,7 +330,11 @@ int JWindow::init( int wdth, int hght, Uint32 flags ) {
 		SDL_Log("ERROR: SDL Window could not be created! SDL Error: %s\n", SDL_GetError());
     }
     else {
-		renderer = SDL_CreateRenderer(data, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    	Uint32 flags = SDL_RENDERER_ACCELERATED;
+    	if (Settings::VSync) {
+    		flags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
+    	}
+		renderer = SDL_CreateRenderer(data, -1, flags);
 
 		if (renderer == NULL) {
 			SDL_Log("ERROR: SDL Renderer could not be created! SDL Error: %s\n", SDL_GetError());

@@ -185,7 +185,7 @@ namespace Input {
 
 
 
-	void Input_LoadCursors() {
+	void LoadCursors() {
 		CURSOR_ARROW = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
 		CURSOR_IBEAM = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM);
 		CURSOR_WAIT = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_WAIT);

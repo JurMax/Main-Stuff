@@ -21,8 +21,6 @@
 //TODO V make this a vector V
 #define MAX_FONT_SIZE 128
 #define FONT_AMOUNT 8
-#define THREADED_LOADING false
-
 
 
 typedef enum {

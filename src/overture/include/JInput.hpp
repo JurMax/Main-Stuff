@@ -31,7 +31,7 @@ namespace Input {
 	std::string getInputLine();
 	bool isTyping();
 
-	void Input_LoadCursors();
+	void LoadCursors();
 }
 
 

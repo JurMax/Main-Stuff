@@ -184,7 +184,7 @@ void JTexture::load( bool reload ) {
 		}
 	}
 
-	if (THREADED_LOADING) {
+	if (Settings::IsMultithreaded) {
 		JResourcePointer resourcepointer = JResourcePointer(this);
 		if (writingBufferA) {
 			resourceBufferA.push_back(resourcepointer);
@@ -249,12 +249,12 @@ bool JTexture::loadFromFile() {
 		}
 		else {
 
-			if (THREADED_LOADING)
+			if (Settings::IsMultithreaded)
 				SDL_LockMutex(rThreadMutex);
 
 			newTexture = SDL_CreateTexture(rRenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, optimizedSurface->w, optimizedSurface->h);
 
-			if (THREADED_LOADING)
+			if (Settings::IsMultithreaded)
 				SDL_UnlockMutex(rThreadMutex);
 
 
@@ -342,7 +342,7 @@ void JFont::load( unsigned int size ) {
 		fontdata.font = NULL;
 		fontData.push_back(fontdata);
 
-		if (THREADED_LOADING) {
+		if (Settings::IsMultithreaded) {
 			JResourcePointer resourcepointer = JResourcePointer(this, size);
 			if (writingBufferA) {
 				resourceBufferA.push_back(resourcepointer);
