@@ -13,17 +13,13 @@
 #undef main
 #include <iostream>
 #include <stdio.h>
-#include <windows.h>
 
 using namespace std;
 
 int main() {
-	std::cout << "test" << std::endl;
-
-	//TODO: platform specific stuff
+	bool redox = true;
 
 	if (Overture_Init()) {
-		bool redox = true;
 		if (redox) {
 			redoxmain::init();
 			Overture_SetUpdateFunc(redoxmain::update);

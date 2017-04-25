@@ -141,17 +141,17 @@ void Overture_Start() {
 		Audio_Update();
 
 		if (mainWindow.focused) {
-			profiler::start("update");
+			Profiler::start("update");
 
 			Overture::updateBezierAnimations();
 			Overture::updateUI();
 
 			updateFunc();
 
-			profiler::stop("update");
+			Profiler::stop("update");
 
 
-			profiler::start("render");
+			Profiler::start("render");
 
 			setRenderColor(0x00, 0x00, 0x00, 0xFF);
 			SDL_RenderClear(rRenderer);
@@ -160,9 +160,10 @@ void Overture_Start() {
 
 			renderFunc();
 
+
 			SDL_RenderPresent(rRenderer);
 
-			profiler::stop("render");
+			Profiler::stop("render");
 
 		}
 		else {

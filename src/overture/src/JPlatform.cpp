@@ -47,16 +47,16 @@
 	#define OS "Unkown OS"
 #endif
 
-std::string currentos = OS;
 
+std::string currentos = OS;
 #undef OS
 
 
 #ifdef __APPLE__
-extern "C" int NSRunAlertPanel(CFStringRef strTitle, CFStringRef strMsg, CFStringRef strButton1, CFStringRef strButton2, CFStringRef strButton3, ...);
+	extern "C" int NSRunAlertPanel(CFStringRef strTitle, CFStringRef strMsg, CFStringRef strButton1, CFStringRef strButton2, CFStringRef strButton3, ...);
 
-bool loadedWindow = false;
-id window;
+	bool loadedWindow = false;
+	id window;
 #endif
 
 
@@ -93,32 +93,36 @@ void Platform_LoadDragAndDrop() {
 			id pool = (id) objc_getClass("NSAutoreleasePool");
 			if (!pool) {
 				SDL_Log("Unable to get NSAutoreleasePool!!");
-				return;
 			}
-			pool = objc_msgSend(pool, sel_registerName("alloc"));
-			if (!pool) {
-				SDL_Log("Unable to create NSAutoreleasePool!!");
-				return;
-			}
-			pool = objc_msgSend(pool, sel_registerName("init"));
+			else {
+				pool = objc_msgSend(pool, sel_registerName("alloc"));
+				if (!pool) {
+					SDL_Log("Unable to create NSAutoreleasePool!!");
+				}
+				else {
+					pool = objc_msgSend(pool, sel_registerName("init"));
 
-			app = objc_msgSend((id) objc_getClass("NSApplication"), sel_registerName("sharedApplication"));
-			if (!app) {
-				SDL_Log("Unable to load NSApplication!!");
-			}
+					app = objc_msgSend((id) objc_getClass("NSApplication"), sel_registerName("sharedApplication"));
+					if (!app) {
+						SDL_Log("Unable to load NSApplication!!");
+					}
+					else {
 
-			id windows = objc_msgSend(app, sel_registerName("windows"));
-			if (!windows) {
-				SDL_Log("Unable to load NSWindows!!");
+						id windows = objc_msgSend(app, sel_registerName("windows"));
+						if (!windows) {
+							SDL_Log("Unable to load NSWindows!!");
+						}
+						else {
+							window = objc_msgSend(windows, sel_registerName("objectAtIndex:"), 0);
+							if (!window) {
+								SDL_Log("Unable to load NSWindow!!");
+							} else {
+								loadedWindow = true;
+							}
+						}
+					}
+				}
 			}
-
-			window = objc_msgSend(windows, sel_registerName("objectAtIndex:"), 0);
-			if (!window) {
-				SDL_Log("Unable to load NSWindow!!");
-			} else {
-				loadedWindow = true;
-			}
-
 			objc_msgSend(pool, sel_registerName("release"));
 		}
 	#endif
@@ -133,7 +137,7 @@ void Platform_Drag(std::string file) {
 		if (!nsview) {
 			SDL_Log("Unable to load NSView!!");
 		} else {
-			objc_msgSend(nsview, sel_registerName("dragFile:fromRect:slideBack:event:"), CFSTR(file.c_str()), NULL, FALSE, NULL);
+			objc_msgSend(nsview, sel_registerName("dragFile:fromRect:slideBack:event:"), CFSTR("/Users/jurriaanvandenberg/Desktop/C1akw25UUAARHH0.jpg"), NULL, FALSE, NULL);
 			loadedWindow = true;
 		}
 	#endif

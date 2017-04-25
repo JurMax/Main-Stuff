@@ -14,7 +14,7 @@
 std::vector<Profile> profiles;
 
 
-namespace profiler {
+namespace Profiler {
 	void printData( Profile *profile );
 
 	Profile *getProfile( std::string profile ) {

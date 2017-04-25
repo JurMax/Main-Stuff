@@ -239,9 +239,9 @@ void redoxmain::render() {
 	    if (adsf) {
 	    	Audio_Init();
 	    	adsf = false;
-	    	profiler::clearAllData();
+	    	Profiler::clearAllData();
 	    }
-	    profiler::printData();
+	    Profiler::printData();
 
 	    /* Play music and a sound */
 	    //playAudio();

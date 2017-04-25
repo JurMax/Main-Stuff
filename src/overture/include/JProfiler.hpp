@@ -21,7 +21,7 @@ struct Profile {
 };
 
 
-namespace profiler {
+namespace Profiler {
 	void start( std::string profile );
 	void stop( std::string profile );
 
