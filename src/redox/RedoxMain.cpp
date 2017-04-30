@@ -15,6 +15,7 @@
 #include <JProfiler.hpp>
 #include <JDebug.hpp>
 #include <JPlatform.hpp>
+#include <JObject.hpp>
 
 #include "RedoxUI.hpp"
 
@@ -39,6 +40,7 @@ void redoxmain::init() {
 }
 
 
+double* pointer;
 
 void redoxmain::update() {
 	if (Input::isKeyPressed(KEY_B)) {
@@ -47,6 +49,34 @@ void redoxmain::update() {
 	if (Input::isKeyPressed(KEY_A)) {
 		Platform_Drag("/Users/jurriaanvandenberg/Desktop/C1akw25UUAARHH0.jpg");
 	}
+
+
+
+
+	if (Input::isKeyPressed(KEY_C)) {
+		if (pointer == NULL) {
+			std::cout << "null" << std::endl;
+		} else {
+			std::cout << *pointer << std::endl;
+		}
+	}
+
+	if (Input::isKeyPressed(KEY_X)) {
+		std::cout << "s1: " << sizeof pointer << "  db: " << sizeof (double) << std::endl;
+		if (pointer != NULL) {
+			delete pointer;
+			pointer = NULL;
+		}
+		std::cout << "s2: " << sizeof pointer << std::endl;
+	}
+	if (Input::isKeyPressed(KEY_Z)) {
+		if (pointer == NULL) {
+			pointer = new double(21.342341);
+		}
+	}
+
+
+	JObjects::Update();
 
 	UI_Update();
 }
@@ -253,6 +283,9 @@ void redoxmain::render() {
 	if (Input::isKeyDown(KEY_2)) {
 		Debug_CloseWindow();
 	}
+
+
+	JObjects::Render();
 }
 
 
