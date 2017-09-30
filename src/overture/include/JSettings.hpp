@@ -10,11 +10,13 @@
 
 #include <string>
 
+namespace Overture {
+	void Settings_Init();
+}
+
 namespace Settings {
 	extern bool IsMultithreaded;
 	extern bool VSync;
-
-	void Init();
 }
 
 /*

@@ -15,20 +15,28 @@
 #include <JAudio.hpp>
 #include <JResources.hpp>
 #include <JBezier.hpp>
-#include <JDebug.hpp>
-#include <JUI.hpp>
+#include <JSettings.hpp>
+#include <JCursor.hpp>
+#include <JWorld.hpp>
 
+
+using namespace Overture;
 
 int initSDL();
 void updateFPS();
 
 JWindow mainWindow;
-bool renderFocusloss = false;
+bool OSisMacOS;
 
 bool isRunning = true;
+bool isExiting = false;
 int frametimelast = 0;
 int framecount = 0;
 int framerate = 0;
+
+// The ticks at the start of the frame.
+int FRAMERATE = 60;
+long ticksFrameStart;
 
 void (*renderFunc)();
 void (*updateFunc)();
@@ -41,12 +49,13 @@ int Overture_Init() {
 
 	Platform_Init();
 	SDL_Log("Running on [%s]", Platform_GetOS().c_str());
+	OSisMacOS = containsString(Overture_GetOS(), "MacOS");
 
 	if (!initSDL()) {
 		SDL_Log("ERROR: Failed to initialise SDL!\n");
 	}
 	else {
-		Settings::Init();
+		Settings_Init();
 
 		if (!Renderer_Init()) {
 			SDL_Log("ERROR: Failed to initialise renderer!\n");
@@ -61,7 +70,7 @@ int Overture_Init() {
 				}
 				else {
 					SDL_Log("Initialising renderer, audio and resources successful");
-					Input::LoadCursors();
+					Cursor_Init();
 					success = 1;
 				}
 			}
@@ -77,7 +86,7 @@ int initSDL() {
 
 	//Set texture filtering to linear
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
-	SDL_SetHint(SDL_HINT_ACCELEROMETER_AS_JOYSTICK, "1");
+	//SDL_SetHint(SDL_HINT_ACCELEROMETER_AS_JOYSTICK, "1");
 
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK) < 0) {
 		SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL failed to initialise! SDL Error: %s\n", SDL_GetError());
@@ -86,7 +95,7 @@ int initSDL() {
 		SDL_StopTextInput();
 		SDL_GL_SetSwapInterval(1);
 
-		mainWindow.init(640, 480);
+		mainWindow.init(800, 600);
 
 		if (!mainWindow.initialized) {
 			SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Window could not be initialised!");
@@ -113,7 +122,12 @@ int initSDL() {
 
 
 void Overture_Close() {
-	Resources_Free();
+	isExiting = true;
+	World_Close();
+	Object_Close();
+	Renderer_Close();
+	Cursor_Close();
+	Resources_Close();
 
 	mainWindow.free();
 
@@ -132,57 +146,32 @@ void Overture_Start() {
 
 	isRunning = true;
 	while(isRunning) {
+		ticksFrameStart = SDL_GetTicks();
 
-		if (Settings::IsMultithreaded && Overture_IsLoadingTextures()) {
-			SDL_LockMutex(Overture_GetThreadMutex());
-		}
-
+		Profiler::start("update");
 		updateFPS();
-
-		Overture::Input_Update();
+		Cursor::isSet = false;
+		Input_Update();
 		Audio_Update();
 
-		if (mainWindow.focused) {
-			Profiler::start("update");
+		Overture::updateBezierAnimations();
+		updateFunc();
+		Profiler::stop("update");
 
-			Overture::updateBezierAnimations();
-			Overture::updateUI();
+		Profiler::start("render");
+		Renderer_Begin();
+		renderFunc();
+		Profiler::stop("render");
 
-			updateFunc();
-
-			Profiler::stop("update");
-
-
-			Profiler::start("render");
-
-			setRenderColor(0x00, 0x00, 0x00, 0xFF);
-			SDL_RenderClear(rRenderer);
-			setRenderColor(getClearColor());
-			renderRect(0, 0, mainWindow.width, mainWindow.height);
-
-			renderFunc();
-
-
-			SDL_RenderPresent(rRenderer);
-
-			Profiler::stop("render");
-
+		Resources_Update();
+		if (!Settings::VSync || !mainWindow.focused) {
+			//TODO: Framerate stuff
+			int delay = floorf(Overture_getTicksLeft());
+			if (delay > 0)
+				SDL_Delay(delay);
 		}
-		else {
-			if (renderFocusloss) {
-				renderFocusloss = false;
-				setRenderColor(0x00, 0x00, 0x00, 0x99);
-				renderRect(0, 0, mainWindow.width, mainWindow.height);
-				SDL_RenderPresent(rRenderer);
-			}
+		Renderer_End();
 
-			// Don't update as frequently when the window lost focus //
-			SDL_Delay(500);
-		}
-
-		if (Settings::IsMultithreaded && Overture_IsLoadingTextures()) {
-			SDL_UnlockMutex(Overture_GetThreadMutex());
-		}
 	}
 }
 
@@ -191,7 +180,7 @@ void updateFPS() {
 	framecount += 1;
 
 	if (SDL_GetTicks() - frametimelast > 1000) {
-		frametimelast= SDL_GetTicks();
+		frametimelast = SDL_GetTicks();
 		framerate = framecount;
 		framecount = 0;
 	}
@@ -222,8 +211,11 @@ bool Overture_SetOption( std::string option, int value ) {
 
 
 std::string Overture_GetOS() {
-	//TODO
 	return Platform_GetOS();
+}
+
+bool Overture_OSIsMac() {
+	return OSisMacOS;
 }
 
 
@@ -234,6 +226,11 @@ JWindow* Overture_GetWindow() {
 
 bool Overture_IsRunning() {
 	return isRunning;
+}
+
+
+bool Overture_IsExiting() {
+	return isExiting;
 }
 
 
@@ -254,13 +251,20 @@ int Overture_GetFramerate() {
 }
 
 
-bool containsString( std::string str1, std::string str2 ) {
-	if (str1.compare(str1.length() - str2.length(), str2.length(), str2) == 0) {
-		return true;
-	}
-	else {
-		return false;
-	}
+
+float dt() {
+	return Overture_getDeltaTime();
+}
+
+
+float Overture_getDeltaTime() {
+	return 1.0f / (float) (FRAMERATE);
+}
+
+
+float Overture_getTicksLeft() {
+	float ticksPerFrame = 1000.0f / (float) FRAMERATE;
+	return ticksPerFrame - (SDL_GetTicks() - ticksFrameStart);
 }
 
 
@@ -288,6 +292,7 @@ JWindow::~JWindow() {
 	free();
 }
 
+
 void JWindow::free() {
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(data);
@@ -303,6 +308,7 @@ void JWindow::free() {
 	logicalSize = false;
 	focused = false;
 }
+
 
 int JWindow::init( int wdth, int hght, Uint32 flags ) {
 	int succes = 0;
@@ -330,17 +336,18 @@ int JWindow::init( int wdth, int hght, Uint32 flags ) {
 		SDL_Log("ERROR: SDL Window could not be created! SDL Error: %s\n", SDL_GetError());
     }
     else {
-    	Uint32 flags = SDL_RENDERER_ACCELERATED;
+    	Uint32 renderflags = SDL_RENDERER_ACCELERATED;
     	if (Settings::VSync) {
-    		flags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
+    		renderflags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
     	}
-		renderer = SDL_CreateRenderer(data, -1, flags);
+
+		renderer = SDL_CreateRenderer(data, -1, renderflags);
 
 		if (renderer == NULL) {
 			SDL_Log("ERROR: SDL Renderer could not be created! SDL Error: %s\n", SDL_GetError());
 		}
 		else {
-			SDL_SetRenderDrawColor(rRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+			SDL_SetRenderDrawColor(Renderer::rRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 			initialized = true;
 			focused = true;
 			succes = 1;
@@ -350,15 +357,16 @@ int JWindow::init( int wdth, int hght, Uint32 flags ) {
     return succes;
 }
 
+
 void JWindow::handleEvents( SDL_Event e ) {
 	if (e.window.windowID == windowID) {
 		if (e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
 			if (!logicalSize) {
 				int w, h;
 				SDL_GetWindowSize(data, &w, &h);
-
 				width = (float) w;
 				height = (float) h;
+				Renderer::resolutionChanged = true;
 			}
 		}
 		else if(e.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
@@ -371,14 +379,17 @@ void JWindow::handleEvents( SDL_Event e ) {
 	}
 }
 
+
 void JWindow::setTitle( std::string str ) {
 	title = str;
 	SDL_SetWindowTitle(data, str.c_str());
 }
 
+
 void JWindow::setFullscreen( bool fullscreen ) {
 	if (fullscreen) {
-		SDL_SetWindowFullscreen(data, SDL_WINDOW_FULLSCREEN_DESKTOP);
+		SDL_SetWindowFullscreen(data, SDL_WINDOW_FULLSCREEN);
+		//SDL_SetWindowFullscreen(data, SDL_WINDOW_FULLSCREEN_DESKTOP);
 		this->fullscreen = true;
 	}
 	else {
@@ -387,16 +398,16 @@ void JWindow::setFullscreen( bool fullscreen ) {
 	}
 }
 
+
 void JWindow::toggleFullscreen() {
 	setFullscreen(!fullscreen);
 }
 
+
 void JWindow::setFocus( bool focus ) {
-	if (focus == false) {
-		renderFocusloss = true;
-	}
 	focused = focus;
 }
+
 
 void JWindow::setLogicalSize( int width, int height ) {
 	this->logicalSize = true;
@@ -408,3 +419,67 @@ void JWindow::setLogicalSize( int width, int height ) {
 
 
 
+bool containsString( std::string str1, std::string str2 ) {
+	if (str1.length() >= str2.length() && str1.compare(str1.length() - str2.length(), str2.length(), str2) == 0) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+
+bool stringIsInt( std::string str ) {
+	bool isInt = false;
+	if (str.length() > 0) {
+		isInt = true;
+		for (int i = 0; i < str.length(); i++) {
+			char c = str[i];
+			bool isNumber = c == '0' ||  c == '1' || c == '2' || c == '3' || c == '4';
+			isNumber = isNumber || c == '5' || c == '6' ||  c == '7' || c == '8' || c == '9';
+			isNumber = isNumber || (i == 0 && str.length() > 1 && c == '-');
+
+			if (!isNumber) {
+				isInt = false;
+			}
+		}
+	}
+	return isInt;
+}
+
+
+bool stringIsFloat( std::string str ) {
+	bool isFloat = false;
+	if (str.length() > 0) {
+		isFloat = true;
+		for (int i = 0; i < str.length(); i++) {
+			char c = str[i];
+			bool isNumber = c == '0' ||  c == '1' || c == '2' || c == '3' || c == '4';
+			isNumber = isNumber || c == '5' || c == '6' ||  c == '7' || c == '8' || c == '9';
+			isNumber = isNumber || (i == 0 && str.length() > 1 && c == '-');
+			isNumber = isNumber || (i != 0 && c == '.');
+
+			if (!isNumber) {
+				isFloat = false;
+			}
+		}
+	}
+	return isFloat;
+}
+
+
+float reduceFloat( float& f, float by ) {
+    if (f > 0.0f) {
+    	f -= by;
+    	if (f < 0.0f) {
+    		f = 0.0f;
+    	}
+    }
+    else if (f < 0.0f) {
+    	f += by;
+    	if (f > 0.0f) {
+    		f = 0.0f;
+    	}
+    }
+    return f;
+}

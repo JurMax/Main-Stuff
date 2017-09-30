@@ -13,6 +13,8 @@
 #include <JRenderer.hpp>
 #include "RhythmChess.hpp"
 
+using namespace Renderer;
+
 Player::Player() {
 	posX = 0;
 	posY = 0;
@@ -97,7 +99,7 @@ void Player::update() {
 				//TODO fix als het voor de beat komt!!
 
 				if (beatTicks <= beatRangeFor)
-					beatTicks += getPlayingMusic()->beatLength;
+					beatTicks += getPlayingMusic()->getBeatLength();
 
 				moveTime = beatTicks - beatRangeFor;
 
@@ -167,7 +169,7 @@ void Player::update() {
 
 void Player::render( float offstX, float offstY ) {
 	setRenderColor(22, 22, 22, 100);
-	renderTexture(&shadow, offstX + posX * tileWidth + 1, offstY + posY * tileHeight + 22);
+	renderTexture(shadow, offstX + posX * tileWidth + 1, offstY + posY * tileHeight + 22);
 	resetRenderColor();
-	renderTexture(&toren, offstX + posX * tileWidth, offstY + (posY + offsetY) * tileHeight);
+	renderTexture(toren, offstX + posX * tileWidth, offstY + (posY + offsetY) * tileHeight);
 }

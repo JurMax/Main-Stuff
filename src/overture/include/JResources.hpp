@@ -16,44 +16,76 @@
 
 
 
-/** Used to identify null non-pointer function parameters */
-#define NAF 3.402823E+38f
-//TODO V make this a vector V
-#define MAX_FONT_SIZE 128
-#define FONT_AMOUNT 8
+namespace Overture {
+	bool Resources_Init();
+	void Resources_Close();
+	void Resources_Update();
+}
+
+struct JBitmapFont;
 
 
-typedef enum {
-	RESOURCE_UNDEFINED = 0,
-	RESOURCE_TEXTURE = 1,
-	RESOURCE_FONT = 2,
-	RESOURCE_AUDIO = 3
-} ResourceType;
+std::string getFilePath( std::string localpath );
+bool Resources_IsLoading();
+void unloadSDLTexture( SDL_Texture* texture );
+SDL_Texture* loadImageFromFile( std::string path, int& width, int& height, int& pitch, JBitmapFont* font = NULL );
+
+struct JTexture;
+extern JTexture textureBlank;
+extern JTexture textureMissing;
 
 
+struct JResource {
+	JResource();
+	virtual ~JResource() {};
 
-class JTexture {
-public:
-	JTexture();
-	~JTexture();
+	virtual bool loadNow() = 0;
+	void loadLater();
 
-	void set( std::string pth );
-	void load( bool reload = false );
-	void setAndLoad( std::string pth );
-	void free();
-	bool loadFromFile();
+	virtual void unloadNow() = 0;
+	void unloadLater();
 
-	void setBlendMode( SDL_BlendMode blending );
-
-	bool defined;
 	std::string path;
-
 	bool loaded;
-	SDL_Texture *textureData;
-	int pitch;
+};
 
+
+struct JTexture : JResource {
+	JTexture();
+	virtual ~JTexture();
+
+	void setPath( std::string path );
+	bool setAndLoad( std::string path, bool loadnow = true );
+
+	virtual bool loadNow();
+	virtual void unloadNow();
+
+	SDL_Texture* textureData;
+
+	int pitch;
 	int width;
 	int height;
+};
+
+
+struct JAudio : JResource {
+	JAudio();
+	virtual ~JAudio();
+
+	void set( std::string pth, int bmp = -1, int offset = 0.0f );
+	void setAndLoad( std::string pth, int bmp = -1, int offset = 0.0f, bool loadnow = true );
+
+	virtual bool loadNow();
+	virtual void unloadNow();
+
+	float getBeatLength();
+
+	Mix_Chunk *chunk;
+
+	// Equals -1 if the audio isn't music
+	int bmp;
+	// Offset in miliseconds, used to match the beats with the song
+	int offset;
 };
 
 
@@ -61,11 +93,10 @@ struct JFontData {
 	bool loading;
 	bool loaded;
 	int size;
-	TTF_Font *font;
+	TTF_Font* font;
 };
 
-class JFont {
-public:
+struct JFont {
 	JFont();
 	~JFont();
 
@@ -83,81 +114,47 @@ public:
 	std::vector<JFontData> fontData;
 };
 
+
+struct JBitmapFont : JResource {
+	JBitmapFont();
+	virtual ~JBitmapFont();
+
+	void setTexture( std::string texturePth, int chardistance, int cellwidth = -1, int cellheight = -1 );
+	void setTextureAndLoad( std::string texturePth, int chardistance, int cellwidth = -1, int cellheight = -1, bool loadnow = true );
+	void setFont( std::string fontPth, unsigned int size );
+	void setFontAndLoad( std::string fontPth, unsigned int size, bool loadnow = true );
+
+	virtual bool loadNow();
+	virtual void unloadNow();
+
+	// True = load a texture as bitmap, false = load a TTF font as bitmap.
+	bool loadFromFont;
+
+	SDL_Texture* bitmapTexture;
+	int width;
+	int height;
+	int pitch;
+
+	// Only used when loaded from font.
+	TTF_Font* fontTTF;
+	std::string fontPath;
+	unsigned int fontSize;
+
+	int cellWidth;
+	int cellHeight;
+	int charDistance; // Distance between chars when rendered in pixels.
+	int charBounds[256 * 3];  // int[char + 0] = row, int[char + 1] = left bound, int[char + 2] = right bound.
+};
+
 /**
  *	JTexture fontToTexture( int width = -1, int height = -1, int fontsize = -1, bool wrap, bool   );
  *		fontsize = -1 means use fontsize that fits in the width/height
  */
 
+//TODO V make this a vector V
+#define MAX_FONT_SIZE 128
+#define FONT_AMOUNT 8
 
-class JAudio {
-public:
-	JAudio();
-	~JAudio();
-
-	void set( std::string pth );
-	void load();
-	void free();
-	void setAndLoad( std::string pth, int bmp = -1, int offset = 0 );
-	bool loadFromFile();
-
-	bool defined;
-	std::string path;
-
-	bool loaded;
-	Mix_Chunk *chunk;
-
-	// Equals -1 if the audio isn't music
-	int bmp;
-	// The time between beats in miliseconds
-	float beatLength;
-	// Offset in miliseconds, used to match the beats with the song
-	int offset;
-};
-
-
-
-class JResourcePointer {
-public:
-	JResourcePointer() {
-		defined = false;
-		resourceType = RESOURCE_UNDEFINED;
-		texture = NULL;
-		font = NULL;
-		fontsize = 0;
-	}
-	JResourcePointer( JTexture *txtr ) {
-		defined = true;
-		resourceType = RESOURCE_TEXTURE;
-		texture = txtr;
-		font = NULL;
-		fontsize = 0;
-	}
-	JResourcePointer( JFont *fnt, int size ) {
-		defined = true;
-		resourceType = RESOURCE_FONT;
-		texture = NULL;
-		font = fnt;
-		fontsize = size;
-	}
-
-	bool defined;
-	ResourceType resourceType;
-
-	JTexture *texture;
-	JFont *font;
-	int fontsize;
-	//JAudio *audio;
-};
-
-
-extern JTexture textureBlank;
-extern JTexture textureMissing;  // unused
-
-bool Resources_Init();
-void Resources_Free();
-
-bool Overture_IsLoadingTextures();
-SDL_mutex* Overture_GetThreadMutex();
 
 
 #endif /* SRC_REDOX_SUPPORT_RESOURCES_HPP_ */

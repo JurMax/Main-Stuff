@@ -17,6 +17,11 @@
 #include <JProfiler.hpp>
 #include <JSettings.hpp>
 
+// "Not A Float", used to identify null non-pointer float function parameters.
+#define NAF 3.402823E+38f
+#undef NULL
+#define NULL nullptr
+
 
 class JWindow {
 public:
@@ -60,13 +65,21 @@ void Overture_SetRenderFunc( void (*f)() );
 bool Overture_SetOption( std::string option, int value );
 
 std::string Overture_GetOS();
+bool Overture_OSIsMac();
 JWindow* Overture_GetWindow();
 
 bool Overture_IsRunning();
+bool Overture_IsExiting();
 bool Overture_IsMobile();
 int Overture_GetFramerate();
 bool Overture_HasWindowLogicalSize();
 bool Overture_IsWindowFullscreen();
+
+// dt() and Overture_getDeltaTime() are identical.
+float dt();
+float Overture_getDeltaTime();
+// Get the ticks left for this frame. This is negative if there is lag.
+float Overture_getTicksLeft();
 
 
 // Android doesn't natively support std::to_string
@@ -78,7 +91,9 @@ std::string toString(T value) {
 }
 
 bool containsString( std::string str1, std::string str2 );
-
+bool stringIsInt( std::string str );
+bool stringIsFloat( std::string str );
+float reduceFloat( float& f, float by );
 
 /**
  * TODO-lijst
@@ -98,6 +113,7 @@ bool containsString( std::string str1, std::string str2 );
  *  	Time offset (play earlier or wait for some time)
  *
  *  https://www.youtube.com/watch?v=H0mI4owz994
+ *  http://gafferongames.com/game-physics/fix-your-timestep/
  */
 
 #endif /* OVERTURE_JOVERTURE_HPP_ */

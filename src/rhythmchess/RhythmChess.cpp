@@ -12,6 +12,9 @@
 #include <JInput.hpp>
 #include "Player.hpp"
 
+using namespace Renderer;
+
+
 int fieldWidth = 8;
 int fieldHeight = 8;
 int tileWidth = 16;
@@ -159,7 +162,7 @@ void RCRender() {
 	for (int i = 0; i < fieldHeight; i++) {
 		for (int i2 = 0; i2 < fieldWidth; i2++) {
 			int tex = tileTexture[i*fieldWidth + i2];
-			JTexture *squaretexture;
+			JTexture* squaretexture;
 
 			if (tex == 0) squaretexture = &tileLight0;
 			else if (tex == 1) squaretexture = &tileLight1;
@@ -171,7 +174,7 @@ void RCRender() {
 			else if (tex == 7) squaretexture = &tileDark3;
 			else squaretexture = &textureBlank;
 
-			renderTexture(squaretexture, offsetX + i2*tileWidth, offsetY + i*tileHeight, tileHeight, tileWidth);
+			renderTexture(*squaretexture, offsetX + i2*tileWidth, offsetY + i*tileHeight, tileHeight, tileWidth);
 		}
 	}
 

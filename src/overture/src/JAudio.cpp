@@ -34,7 +34,7 @@ int beatRangeFor = 0;
 int beatRangeAfter = 0;
 
 
-bool Audio_Init() {
+bool Overture::Audio_Init() {
 	bool success = true;
 
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
@@ -47,7 +47,7 @@ bool Audio_Init() {
 }
 
 
-void Audio_Update() {
+void Overture::Audio_Update() {
 	for (unsigned int i = 0; i < audioData.size(); i++) {
 		int i2 = audioData.size() - 1 - i;
 		AudioData *ad = &audioData.at(i2);
@@ -70,6 +70,7 @@ void Audio_Update() {
 
 	prefTicks = SDL_GetTicks();
 }
+
 
 
 void playAudio( JAudio *audio, bool unique, int loop ) {
@@ -137,7 +138,7 @@ bool audioOnBeat( JAudio *audio ) {
 		AudioData *ad = &audioData.at(i);
 		if (ad->audio->bmp != -1) {
 			if (ad->audio == audio || audio == NULL) {
-				int msPerBeat = round(ad->audio->beatLength);
+				int msPerBeat = round(ad->audio->getBeatLength());
 				int offset1 = (ad->playtime + ad->audio->offset) % msPerBeat;
 				int offset2 = msPerBeat - offset1;
 
@@ -156,7 +157,7 @@ bool audioOnOffbeat( JAudio *audio ) {
 		AudioData *ad = &audioData.at(i);
 		if (ad->audio->bmp != -1) {
 			if (ad->audio == audio || audio == NULL) {
-				int msPerBeat = round(ad->audio->beatLength);
+				int msPerBeat = round(ad->audio->getBeatLength());
 				int offset1 = (ad->playtime + ad->audio->offset + msPerBeat/2) % msPerBeat;
 				int offset2 = msPerBeat - offset1;
 
@@ -176,9 +177,9 @@ float beatProgress( JAudio *audio, int *ticks ) {
 		AudioData *ad = &audioData.at(i);
 		if (ad->audio->bmp != -1) {
 			if (ad->audio == audio || audio == NULL) {
-				int msPerBeat = round(ad->audio->beatLength);
+				int msPerBeat = round(ad->audio->getBeatLength());
 				int ticksTillNextBeat = msPerBeat - ((ad->playtime + ad->audio->offset) % msPerBeat);
-				float newprogress = (float) (ticksTillNextBeat) / ad->audio->beatLength;
+				float newprogress = (float) (ticksTillNextBeat) / ad->audio->getBeatLength();
 
 				if (progress == -1.0f || newprogress < progress) {
 					progress = newprogress;
@@ -201,9 +202,9 @@ float offbeatProgress( JAudio *audio, int *ticks ) {
 		AudioData *ad = &audioData.at(i);
 		if (ad->audio->bmp != -1) {
 			if (ad->audio == audio || audio == NULL) {
-				int msPerBeat = round(ad->audio->beatLength);
+				int msPerBeat = round(ad->audio->getBeatLength());
 				int ticksTillNextBeat = msPerBeat - ((ad->playtime + ad->audio->offset + msPerBeat/2) % msPerBeat);
-				float newprogress = (float) (ticksTillNextBeat) / ad->audio->beatLength;
+				float newprogress = (float) (ticksTillNextBeat) / ad->audio->getBeatLength();
 
 				if (progress == -1.0f || newprogress < progress) {
 					progress = newprogress;

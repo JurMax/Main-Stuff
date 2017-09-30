@@ -137,7 +137,7 @@ void Platform_Drag(std::string file) {
 		if (!nsview) {
 			SDL_Log("Unable to load NSView!!");
 		} else {
-			objc_msgSend(nsview, sel_registerName("dragFile:fromRect:slideBack:event:"), CFSTR("/Users/jurriaanvandenberg/Desktop/C1akw25UUAARHH0.jpg"), NULL, FALSE, NULL);
+			objc_msgSend(nsview, sel_registerName("dragFile:fromRect:slideBack:event:"), CFSTR("/Users/jurriaanvandenberg/Desktop/C1akw25UUAARHH0.jpg"), 0, FALSE, 0);
 			loadedWindow = true;
 		}
 	#endif

@@ -35,7 +35,7 @@ int main() {
 		Overture_Close();
 	}
 
+	std::cout << "- end -" << std::endl;
 	return 0;
 }
 
-// .\Users\"Jurriaan en Maxim"\Documents\Documenten\Programming\WeeklyGames\Main-Stuff\Debug\Main-Stuff.exe

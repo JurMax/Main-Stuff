@@ -10,8 +10,10 @@
 
 #include <JResources.hpp>
 
-bool Audio_Init();
-void Audio_Update();
+namespace Overture {
+	bool Audio_Init();
+	void Audio_Update();
+}
 
 void playAudio( JAudio *audio, bool unique = false, int loop = 0 );
 void pauseAudio( JAudio *audio = NULL );

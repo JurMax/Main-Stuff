@@ -78,8 +78,8 @@ void Bezier::render(float posx, float posy, float width, float height) {
 		pixel = getVectorValue(t);
 		pixel.y = 1.0 - pixel.y;
 
-		SDL_SetRenderDrawColor(rRenderer, 0, 0, 255.0f*t, 0xFF);
-		SDL_RenderDrawLine(rRenderer, prefPixel.x*width + posx, prefPixel.y*height + posy, pixel.x*width + posx, pixel.y*height + posy);
+		//Renderer::setRenderColor(0, 0, 255.0f*t, 0xFF);
+		//Renderer::renderSDLLine(prefPixel.x*width + posx, prefPixel.y*height + posy, pixel.x*width + posx, pixel.y*height + posy);
 	}
 }
 

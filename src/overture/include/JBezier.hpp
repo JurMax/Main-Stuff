@@ -9,8 +9,8 @@
 #ifndef SRC_REDOX_SUPPORT_FUNCTIONS_HPP_
 #define SRC_REDOX_SUPPORT_FUNCTIONS_HPP_
 
+#include <JTypes.hpp>
 #include <vector>
-#include <JVector.hpp>
 
 class Bezier {
 public:

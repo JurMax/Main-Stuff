@@ -5,13 +5,15 @@
  *      Author: jurriaanvandenberg
  */
 
-//#include <JSettings.hpp>
+#include <JSettings.hpp>
+
+void Overture::Settings_Init() {
+
+}
+
 
 namespace Settings {
 	bool IsMultithreaded = false;
 	bool VSync = true;
 
-	void Init() {
-		//TODO Load and save settings;
-	}
 }
